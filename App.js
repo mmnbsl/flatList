@@ -1,16 +1,19 @@
 import * as React from "react";
-import { View, Text } from "react-native";
+import {SafeAreaView, View, Text, StyleSheet } from "react-native";
+import FlatListExample from './src/components/FlatListExample.js';
 
 export default function App() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Universal React with Expo</Text>
-    </View>
+    <SafeAreaView
+      style={style.viewContainer}>
+        <FlatListExample/>
+    </SafeAreaView>
   );
 }
+const style = StyleSheet.create({
+  viewContainer : {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  }
+})
