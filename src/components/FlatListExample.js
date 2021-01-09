@@ -8,6 +8,7 @@ export default class FlatListExample extends Component {
         super()
         this.state = {
             jsonData : [],
+            page : 1,
             allJsonData : [], 
             searchText : '',
             isLoading : false,
@@ -22,22 +23,30 @@ export default class FlatListExample extends Component {
         this.setState({
             isLoading : true,
         })
-        const { data: { results } } = await axios('https://randomuser.me/api/?results=50')
+        const { data: { results } } = await axios(`https://randomuser.me/api/?results=50&page=${this.state.page}`)
+        const users = [...this.state.allJsonData, ...results]
+
         this.setState({
-            jsonData : results,
-            allJsonData : results,
+            jsonData: users,
+            allJsonData: users,
             isLoading: false,
         })
-    }    
+    }  
+    _loadMore = () => {
+        this.setState({
+            page : this.state.page + 1,
+        })
+        this.getData()
+    }  
     render(){
         const mainContainer = Platform.select({ 
             ios: style.mainContainerIos,
-            android: style.mainContainerAndroid
+            android: style.mainContainerAndroid 
         }) 
 
-        const _renderItem = ({ item }) => {
+        const _renderItem = ({ item, index }) => {
             return (
-                <View style={[style.viewContainer, { backgroundColor: item.id % 2 === 1 ? '#f9f9f9' : '' }]}>
+                <View style={[style.viewContainer, { backgroundColor: index % 2 === 1 ? '#f9f9f9' : '' }]}>
                     <View style={style.itemContainer}>
                         <Image
                             style={style.avatar}
@@ -84,7 +93,8 @@ export default class FlatListExample extends Component {
                     <ActivityIndicator size={'large'} color="#0000ff" />
                 </View>
             )
-        } 
+        }
+        
         return ( 
             <SafeAreaView style={mainContainer}>
                 <FlatList
@@ -94,6 +104,8 @@ export default class FlatListExample extends Component {
                     ListHeaderComponent={_headerComponent}
                     stickyHeaderIndices={[0]} //Header'ı sabitledi
                     ListFooterComponent = {_footerComponent}
+                    onEndReached = {this._loadMore} //listenin sonuna indiğimizde çalışır
+                    onEndReachedThreshold = {0} //sona ne kadar yaklaştığımızda onEndReached'ın çalışacağını belirlemek için
                 />
             </SafeAreaView>
         )
