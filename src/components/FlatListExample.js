@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { SafeAreaView, TextInput , View, FlatList, Image, Text, StyleSheet, StatusBar, Platform, ActivityIndicator} from 'react-native';
+import { SafeAreaView, TextInput , View, FlatList, Image, Text, StyleSheet, StatusBar, Platform, ActivityIndicator, Alert} from 'react-native';
 import axios from 'axios';
 
 export default class FlatListExample extends Component {
@@ -20,17 +20,25 @@ export default class FlatListExample extends Component {
     }
     
     getData = async () => {
-        this.setState({
+        this.setState({ 
             isLoading : true,
         })
-        const { data: { results } } = await axios(`https://randomuser.me/api/?results=50&page=${this.state.page}`)
-        const users = [...this.state.allJsonData, ...results]
+        
+        try {
+            await axios(`https://randomuser.me/api/?results=50&page=${this.state.page}`)
+                .then(({data : {results}}) => {
+                    console.log(results)
+                    this.setState({
+                        jsonData: results,
+                        allJsonData: results,
+                        isLoading: false,
+                    })
+                })
+        } catch (error) {
+            Alert.alert('Sunucu Bağlantısı Kurulamadı!')
+        }
 
-        this.setState({
-            jsonData: users,
-            allJsonData: users,
-            isLoading: false,
-        })
+        
     }  
     _loadMore = () => {
         this.setState({
@@ -103,9 +111,10 @@ export default class FlatListExample extends Component {
                     keyExtractor={(item) => item.login.uuid}
                     ListHeaderComponent={_headerComponent}
                     stickyHeaderIndices={[0]} //Header'ı sabitledi
-                    ListFooterComponent = {_footerComponent}
+                    ListFooterComponent = {_footerComponent} //liste boşken yada liste dolu iken, listenin altında olan kısım (biz progress bar göstermek için kullanıyoruz)
                     onEndReached = {this._loadMore} //listenin sonuna indiğimizde çalışır
-                    onEndReachedThreshold = {0} //sona ne kadar yaklaştığımızda onEndReached'ın çalışacağını belirlemek için
+                    onEndReachedThreshold = {0} // (sadece IOS'ta 0) sona ne kadar yaklaştığımızda onEndReached'ın çalışacağını belirlemek için
+                    onMomentumScrollBegin = {()=> {}} //scroll hareketi başladığı anda çalışır
                 />
             </SafeAreaView>
         )
