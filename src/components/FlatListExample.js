@@ -7,8 +7,10 @@ export default class FlatListExample extends Component {
     constructor(){
         super()
         this.state = {
-            jsonData : [], 
-            searchText : '', 
+            jsonData : [],
+            allJsonData : [], 
+            searchText : '',
+            isLoading : false,
         }
     }
 
@@ -17,9 +19,14 @@ export default class FlatListExample extends Component {
     }
     
     getData = async () => {
+        this.setState({
+            isLoading : true,
+        })
         const { data: { results } } = await axios('https://randomuser.me/api/?results=50')
         this.setState({
-            jsonData : results
+            jsonData : results,
+            allJsonData : results,
+            isLoading: false,
         })
     }    
     render(){
@@ -43,18 +50,18 @@ export default class FlatListExample extends Component {
         }
 
         const _filter = (text) => {
-            const newData = this.state.jsonData.filter((item) => {
-                const listItem = `${item.title.toLowerCase()}`;
+            const newData = this.state.allJsonData.filter((item) => {
+                const listItem = `${item.name.first.toLowerCase()}`;
                 return listItem.indexOf(text.toLowerCase()) > -1;
             })
             this.setState({jsonData : newData})
-            this.setState({searchText : text})
+            this.setState({searchText : text}) 
         }
 
         const _headerComponent = () => {
             return (
                 <View style={style.inputContainer}>
-                    <TextInput
+                    <TextInput 
                         style={style.input}
                         placeholder='Search..'
                         value={this.state.searchText}
@@ -69,9 +76,10 @@ export default class FlatListExample extends Component {
             )
         }
         const _footerComponent = () => {
-            return(
-                <View style = {style.indicatorContainer}> 
-                    <ActivityIndicator />
+            if(!this.state.isLoading) return null;
+            return (
+                <View style={style.indicatorContainer}>
+                    <ActivityIndicator size={'large'} />
                 </View>
             )
         }
@@ -97,6 +105,7 @@ const style = StyleSheet.create({
     },
     mainContainerAndroid: {
         flex: 1,
+        width: '100%',
         paddingTop: StatusBar.currentHeight
     },
     viewContainer: {
