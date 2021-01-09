@@ -33,7 +33,7 @@ export default class FlatListExample extends Component {
         const mainContainer = Platform.select({ 
             ios: style.mainContainerIos,
             android: style.mainContainerAndroid
-        })
+        }) 
 
         const _renderItem = ({ item }) => {
             return (
@@ -43,7 +43,10 @@ export default class FlatListExample extends Component {
                             style={style.avatar}
                             source={{ uri: item.picture.thumbnail }}
                         />
-                        <Text>{item.name.first}</Text>
+                        <View>
+                            <Text>{`${item.name.title} ${item.name.first} ${item.name.last}`}</Text>
+                            <Text>{item.location.city}</Text>
+                        </View>
                     </View>
                 </View>
             )
@@ -51,7 +54,7 @@ export default class FlatListExample extends Component {
 
         const _filter = (text) => {
             const newData = this.state.allJsonData.filter((item) => {
-                const listItem = `${item.name.first.toLowerCase()}`;
+                const listItem = `${item.name.first.toLowerCase()} ${item.name.last.toLowerCase()} ${item.location.city.toLowerCase()}`;
                 return listItem.indexOf(text.toLowerCase()) > -1;
             })
             this.setState({jsonData : newData})
@@ -65,8 +68,7 @@ export default class FlatListExample extends Component {
                         style={style.input}
                         placeholder='Search..'
                         value={this.state.searchText}
-                        onChangeText={(item) => {
-                            //setSearchText(text)
+                        onChangeText={item => {
                             _filter(item)
 
                         }}
@@ -79,10 +81,10 @@ export default class FlatListExample extends Component {
             if(!this.state.isLoading) return null;
             return (
                 <View style={style.indicatorContainer}>
-                    <ActivityIndicator size={'large'} />
+                    <ActivityIndicator size={'large'} color="#0000ff" />
                 </View>
             )
-        }
+        } 
         return ( 
             <SafeAreaView style={mainContainer}>
                 <FlatList
